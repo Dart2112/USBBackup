@@ -19,20 +19,12 @@ import java.util.zip.CheckedInputStream;
 
 public class Main {
 
-    public enum type {
-        From, To, Finished;
-    }
-
     static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(5);
-
     static HashMap<String, Long> fromMap = new HashMap<>();
     static HashMap<String, Long> toMap = new HashMap<>();
     static HashMap<String, Long> finishedMap = new HashMap<>();
-
-
     static YamlConfiguration config;
     static File configFile = new File("." + File.separator + "config.yml");
-
     static String toPath;
     static String fromPath;
 
@@ -264,22 +256,31 @@ public class Main {
     public static Long doChecksum(File file) {
         try {
             CheckedInputStream cis = null;
+            FileInputStream fis = null;
             long fileSize = 0;
             try {
                 // Computer Adler-32 checksum
-                cis = new CheckedInputStream(
-                        new FileInputStream(file), new Adler32());
+                fis = new FileInputStream(file);
+                cis = new CheckedInputStream(fis, new Adler32());
                 fileSize = file.length();
             } catch (FileNotFoundException e) {
-
+                cis.close();
+                fis.close();
             }
             byte[] buf = new byte[128];
             while (cis.read(buf) >= 0) {
             }
-            return cis.getChecksum().getValue();
+            Long l = cis.getChecksum().getValue();
+            cis.close();
+            fis.close();
+            return l;
         } catch (IOException e) {
             return null;
         }
+    }
+
+    public enum type {
+        From, To, Finished;
     }
 
 }
