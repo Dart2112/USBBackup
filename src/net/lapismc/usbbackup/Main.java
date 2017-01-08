@@ -51,9 +51,18 @@ public class Main {
                         config = YamlConfiguration.loadConfiguration(configFile);
                         config.set("PathFrom", "");
                         config.set("PathTo", "");
+                        config.set("Exclude", "");
                         config.set("MaxSizeCheckSum", 50);
+                        config.set("MinutesBetweenRuns", 5);
                         config.set("Stop", false);
                         config.save(configFile);
+                        scheduledExecutorService.shutdown();
+                        fromMap = null;
+                        toMap = null;
+                        finishedMap = null;
+                        config = null;
+                        System.gc();
+                        System.exit(0);
                     } catch (IOException e) {
                         return;
                     }
@@ -163,7 +172,8 @@ public class Main {
             }
         };
 
-        final ScheduledFuture<?> scheduledFuture = scheduledExecutorService.scheduleWithFixedDelay(runnable, 0l, 5l, TimeUnit.MINUTES);
+        final ScheduledFuture<?> scheduledFuture = scheduledExecutorService.scheduleWithFixedDelay(runnable, 0l, Long.parseLong(config.getString("MinutesBetweenRuns")),
+                TimeUnit.MINUTES);
     }
 
     public static void copyFile(String relativePath) {
@@ -228,7 +238,7 @@ public class Main {
                 file = null;
                 break;
         }
-        if (file.getName().contains("~") || file.isHidden()) {
+        if (isExcluded(relativePath) || file.getName().contains("~") || file.isHidden()) {
             return;
         }
         Long l;
@@ -251,6 +261,16 @@ public class Main {
                 finishedMap.put(file.getPath().replace(toPath, ""), l);
                 break;
         }
+    }
+
+    public static boolean isExcluded(String relativePath) {
+        List<String> excludeList = config.getStringList("Exclude");
+        for (String exclude : excludeList) {
+            if (relativePath.contains(exclude)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Long doChecksum(File file) {
