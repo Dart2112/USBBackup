@@ -243,7 +243,7 @@ public class Main {
         }
         Long l;
         if (file.length() / 1024 / 1024 > config.getInt("MaxSizeCheckSum")) {
-            System.out.println("File " + file.getName() + " Greater than 100 MB, Repalcing checksum with size");
+            System.out.println("File " + file.getName() + " Greater than 100 MB, Replacing checksum with size");
             l = file.length();
         } else {
             System.out.println("Getting checksum of " + file.getName());
