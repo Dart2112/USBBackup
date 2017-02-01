@@ -139,21 +139,32 @@ public class Main {
                 for (String s : fromMap.keySet()) {
                     System.out.println("Comparing file at " + s);
                     Long remote = fromMap.get(s);
-                    if (toMap.containsKey(s)) {
-                        Long current = toMap.get(s);
-                        if (!current.equals(remote)) {
-                            copyFile(s);
-                            System.out.println("Files are different, overwriting");
-                        } else {
-                            System.out.println("Files are same, ignoring");
+                    File fromDir = new File(fromPath + s);
+                    if (fromDir.exists() && fromDir.isDirectory()) {
+                        File toDir = new File(toPath + s);
+                        if (!toDir.exists()) {
+                            toDir.mkdirs();
                         }
-                        toMap.remove(s);
+                        if (toMap.containsKey(toDir)) {
+                            toMap.remove(toDir);
+                        }
                     } else {
-                        System.out.println("File doesn't exist, copying");
-                        copyFile(s);
+                        if (toMap.containsKey(s)) {
+                            Long current = toMap.get(s);
+                            if (!current.equals(remote)) {
+                                copyFile(s);
+                                System.out.println("Files are different, overwriting");
+                            } else {
+                                System.out.println("Files are same, ignoring");
+                            }
+                            toMap.remove(s);
+                        } else {
+                            System.out.println("File doesn't exist, copying");
+                            copyFile(s);
+                        }
                     }
                     if (toMap.containsKey(s)) {
-                        System.out.println("File doesn't need to exist anymore, deleting");
+                        System.out.println("File doesn't exist anymore, deleting");
                         File f = new File(toPath + s);
                         f.delete();
                         toMap.remove(s);
@@ -195,6 +206,10 @@ public class Main {
     public static void copyFile(String relativePath) {
         String newPath = toPath + relativePath;
         File f = new File(fromPath + relativePath);
+        if (f.isDirectory()) {
+            new File(newPath).mkdir();
+            return;
+        }
         try {
             FileUtils.copyFile(f, new File(newPath));
         } catch (IOException e) {
@@ -209,16 +224,17 @@ public class Main {
         switch (type) {
             case From:
                 path = fromPath;
+                fromMap.put(relativePath, 0l);
                 dir = new File(fromPath + relativePath);
-                File file = new File(dir.getPath().replace(fromPath, toPath));
-                file.mkdir();
                 break;
             case To:
                 path = toPath;
+                toMap.put(relativePath, 0l);
                 dir = new File(toPath + relativePath);
                 break;
             case Finished:
                 path = toPath;
+                toMap.put(relativePath, 0l);
                 dir = new File(toPath + relativePath);
                 break;
             default:
@@ -259,7 +275,7 @@ public class Main {
         }
         Long l;
         if (file.length() / 1024 / 1024 > config.getInt("MaxSizeCheckSum")) {
-            System.out.println("File " + file.getName() + " Greater than 100 MB, Replacing checksum with size");
+            System.out.println("File " + file.getName() + " Greater than " + config.getInt("MaxCheckSum") + " MB, Replacing checksum with size");
             l = file.length();
         } else {
             System.out.println("Getting checksum of " + file.getName());
