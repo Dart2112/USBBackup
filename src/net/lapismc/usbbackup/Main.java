@@ -36,11 +36,13 @@ import java.util.zip.CheckedInputStream;
 public class Main {
 
     static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(5);
+    static List<String> logList = new ArrayList<>();
     static HashMap<String, Long> fromMap = new HashMap<>();
     static HashMap<String, Long> toMap = new HashMap<>();
     static HashMap<String, Long> finishedMap = new HashMap<>();
     static YamlConfiguration config;
     static File configFile = new File("." + File.separator + "config.yml");
+    static File logFile = new File("." + File.separator + "log.yml");
     static String toPath;
     static String fromPath;
 
@@ -83,6 +85,15 @@ public class Main {
                         return;
                     }
                 }
+                if (!logFile.exists()) {
+                    try {
+                        logFile.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                YamlConfiguration log = YamlConfiguration.loadConfiguration(logFile);
+                log.set("log", null);
                 config = YamlConfiguration.loadConfiguration(configFile);
                 if (config.getString("PathFrom").equalsIgnoreCase("")) {
                     return;
@@ -118,7 +129,7 @@ public class Main {
                     }
                 }
                 if (config.contains("OldHashes") && config.getStringList("OldHashes").size() > 1) {
-                    System.out.println("Getting old hashes!");
+                    log("Getting old hashes!");
                     List<String> oldHashes = config.getStringList("OldHashes");
                     for (String s : oldHashes) {
                         String[] stringArray = s.split(":");
@@ -127,7 +138,7 @@ public class Main {
                         toMap.put(path, l);
                     }
                 } else {
-                    System.out.println("No old hashes found, getting them now");
+                    log("No old hashes found, getting them now");
                     for (File f : toArray) {
                         if (f.isDirectory()) {
                             addDir(f.getPath().replace(toPath, ""), type.To);
@@ -137,7 +148,7 @@ public class Main {
                     }
                 }
                 for (String s : fromMap.keySet()) {
-                    System.out.println("Comparing file at " + s);
+                    log("Comparing file at " + s);
                     Long remote = fromMap.get(s);
                     File fromDir = new File(fromPath + s);
                     if (fromDir.exists() && fromDir.isDirectory()) {
@@ -153,18 +164,18 @@ public class Main {
                             Long current = toMap.get(s);
                             if (!current.equals(remote)) {
                                 copyFile(s);
-                                System.out.println("Files are different, overwriting");
+                                log("Files are different, overwriting");
                             } else {
-                                System.out.println("Files are same, ignoring");
+                                log("Files are same, ignoring");
                             }
                             toMap.remove(s);
                         } else {
-                            System.out.println("File doesn't exist, copying");
+                            log("File doesn't exist, copying");
                             copyFile(s);
                         }
                     }
                     if (toMap.containsKey(s)) {
-                        System.out.println("File doesn't exist anymore, deleting");
+                        log("File doesn't exist anymore, deleting");
                         File f = new File(toPath + s);
                         f.delete();
                         toMap.remove(s);
@@ -176,7 +187,7 @@ public class Main {
                 }
                 File finished = new File(toPath);
                 File[] finishedArray = finished.listFiles();
-                System.out.println("Getting checksums of currently sorted files ready for next time");
+                log("Getting checksums of currently sorted files ready for next time");
                 for (File f : finishedArray) {
                     if (f.isDirectory()) {
                         addDir(f.getPath().replace(toPath, ""), type.Finished);
@@ -184,15 +195,17 @@ public class Main {
                         addFile(f.getPath().replace(toPath, ""), type.Finished);
                     }
                 }
-                System.out.println("\n");
+                log("\n");
                 List<String> finishedList = new ArrayList<>();
                 for (String s : finishedMap.keySet()) {
                     Long l = finishedMap.get(s);
                     finishedList.add(l + ":" + s);
                 }
                 config.set("OldHashes", finishedList);
+                log.set("log", logList);
                 try {
                     config.save(configFile);
+                    log.save(logFile);
                 } catch (IOException e) {
                     return;
                 }
@@ -201,6 +214,11 @@ public class Main {
 
         final ScheduledFuture<?> scheduledFuture = scheduledExecutorService.scheduleWithFixedDelay(runnable, 0l, Long.parseLong(config.getString("MinutesBetweenRuns")),
                 TimeUnit.MINUTES);
+    }
+
+    public static void log(String s) {
+        logList.add(s);
+        System.out.println(s);
     }
 
     public static void copyFile(String relativePath) {
@@ -218,7 +236,7 @@ public class Main {
     }
 
     public static void addDir(String relativePath, type type) {
-        System.out.println("loading files in " + relativePath);
+        log("loading files in " + relativePath);
         File dir;
         String path;
         switch (type) {
@@ -231,6 +249,12 @@ public class Main {
                 path = toPath;
                 toMap.put(relativePath, 0l);
                 dir = new File(toPath + relativePath);
+                File from = new File(fromPath + relativePath);
+                if (!from.exists()) {
+                    log("Deleting directory at " + relativePath);
+                    dir.delete();
+                    return;
+                }
                 break;
             case Finished:
                 path = toPath;
@@ -275,13 +299,13 @@ public class Main {
         }
         Long l;
         if (file.length() / 1024 / 1024 > config.getInt("MaxSizeCheckSum")) {
-            System.out.println("File " + file.getName() + " Greater than " + config.getInt("MaxCheckSum") + " MB, Replacing checksum with size");
+            log("File " + file.getName() + " Greater than " + config.getInt("MaxSizeCheckSum") + " MB, Replacing checksum with size");
             l = file.length();
         } else {
-            System.out.println("Getting checksum of " + file.getName());
+            log("Getting checksum of " + file.getName());
             l = doChecksum(file);
         }
-        System.out.println("Checksum of " + file.getName() + " is " + l);
+        log("Checksum of " + file.getName() + " is " + l);
         switch (type) {
             case From:
                 fromMap.put(file.getPath().replace(fromPath, ""), l);
