@@ -249,17 +249,22 @@ public class Main {
                 path = toPath;
                 toMap.put(relativePath, 0l);
                 dir = new File(toPath + relativePath);
-                File from = new File(fromPath + relativePath);
-                if (!from.exists()) {
-                    log("Deleting directory at " + relativePath);
-                    dir.delete();
-                    return;
-                }
                 break;
             case Finished:
                 path = toPath;
                 toMap.put(relativePath, 0l);
                 dir = new File(toPath + relativePath);
+                File from = new File(fromPath + relativePath);
+                if (!from.exists() || !from.isDirectory()) {
+                    log("Deleting directory at " + relativePath);
+                    try {
+                        FileUtils.deleteDirectory(dir);
+                    } catch (IOException e) {
+                        log("Failed to delete " + relativePath);
+                    }
+                    toMap.remove(relativePath);
+                    return;
+                }
                 break;
             default:
                 path = null;

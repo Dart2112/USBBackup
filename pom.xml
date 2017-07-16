@@ -23,7 +23,7 @@
 
     <build>
         <finalName>${project.artifactId}</finalName>
-        <defaultGoal>clean install</defaultGoal>
+        <defaultGoal>clean package</defaultGoal>
         <sourceDirectory>${basedir}/src/</sourceDirectory>
         <plugins>
             <plugin>
