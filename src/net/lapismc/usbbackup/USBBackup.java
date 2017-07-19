@@ -43,6 +43,10 @@ public class USBBackup {
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
+            if (!(remotePath.toFile().canRead() && localPath.toFile().canRead() && localPath.toFile().canWrite())) {
+                log.info("Cannot read/write files \n Will try again in 5 mins");
+                return;
+            }
             log.info("Backup Starting");
             for (File f : remotePath.toFile().listFiles()) {
                 processFile(f);
