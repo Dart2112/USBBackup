@@ -66,8 +66,8 @@ public class ChecksumFile {
                 return;
             }
         }
-        File dest = new File(main.localPath.toAbsolutePath().toString() + relativePath);
-        File from = new File(main.remotePath.toAbsolutePath().toString() + relativePath);
+        File dest = new File(main.localPath.toAbsolutePath().toString() + File.separator + relativePath);
+        File from = new File(main.remotePath.toAbsolutePath().toString() + File.separator + relativePath);
         try {
             if (!dest.exists()) {
                 dest.createNewFile();
