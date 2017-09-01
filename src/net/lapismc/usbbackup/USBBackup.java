@@ -58,7 +58,7 @@ public class USBBackup {
                     remoteName = Files.getFileStore(remotePath).name();
                     File configFile = new File("config.yml");
                     YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
-                    config.set("remotePath", remoteName + ":" + remotePath.toString());
+                    config.set("remotePath", remoteName + ";" + remotePath.toString());
                     config.save(configFile);
                 }
             } catch (IOException e) {
@@ -145,8 +145,8 @@ public class USBBackup {
             System.exit(0);
         }
         config = YamlConfiguration.loadConfiguration(configFile);
-        if (config.getString("remotePath").contains(":")) {
-            String[] remote = config.getString("remotePath").split(":");
+        if (config.getString("remotePath").contains(";")) {
+            String[] remote = config.getString("remotePath").split(";");
             remotePath = new File(remote[1]).toPath();
             remoteName = remote[0];
         } else {
