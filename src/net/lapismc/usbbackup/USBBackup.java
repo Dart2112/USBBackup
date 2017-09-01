@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class USBBackup {
 
     public Path remotePath;
+    public String remoteName;
     public Path localPath;
     public List<String> exclude;
     public Log log = LogFactory.getLog(USBBackup.class);
@@ -45,6 +47,22 @@ public class USBBackup {
         public void run() {
             if (!(remotePath.toFile().canRead() && localPath.toFile().canRead() && localPath.toFile().canWrite())) {
                 log.info("Cannot read/write files \n Will try again in 5 mins");
+                return;
+            }
+            try {
+                if (remoteName != null && Files.getFileStore(remotePath).name() != remoteName) {
+                    log.info("The remote name doesnt match our records! \nDelete name from config or update the path");
+                    return;
+                }
+                if (remoteName == null) {
+                    remoteName = Files.getFileStore(remotePath).name();
+                    File configFile = new File("config.yml");
+                    YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+                    config.set("remotePath", remoteName + ":" + remotePath.toString());
+                    config.save(configFile);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
                 return;
             }
             log.info("Backup Starting");
@@ -90,11 +108,13 @@ public class USBBackup {
     private void processLocalFile(File f) {
         File remote = new File(f.getPath().replace(localPath.toString(), remotePath.toString()));
         if (f.isDirectory()) {
-            for (File file : f.listFiles()) {
-                processLocalFile(file);
+            if (!f.getName().contains(".git")) {
+                for (File file : f.listFiles()) {
+                    processLocalFile(file);
+                }
             }
         }
-        if (!remote.exists()) {
+        if (!remote.exists() && !f.getPath().contains(".git")) {
             if (FileUtils.deleteQuietly(f)) {
                 log.info("Deleted file " + f.getAbsolutePath().replace(localPath.toString(), ""));
             } else {
@@ -125,7 +145,14 @@ public class USBBackup {
             System.exit(0);
         }
         config = YamlConfiguration.loadConfiguration(configFile);
-        remotePath = new File(config.getString("remotePath")).toPath();
+        if (config.getString("remotePath").contains(":")) {
+            String[] remote = config.getString("remotePath").split(":");
+            remotePath = new File(remote[1]).toPath();
+            remoteName = remote[0];
+        } else {
+            remoteName = null;
+            remotePath = new File(config.getString("remotePath")).toPath();
+        }
         localPath = new File(config.getString("localPath")).toPath();
         exclude = config.getStringList("exclude");
     }
