@@ -97,12 +97,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.2</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>net.lapismc</groupId>
             <artifactId>YamlDNA</artifactId>
             <version>1.1</version>

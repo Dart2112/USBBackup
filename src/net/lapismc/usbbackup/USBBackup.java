@@ -1,17 +1,17 @@
 /*
  * Copyright 2017 Benjamin Martin
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package net.lapismc.usbbackup;
@@ -45,12 +45,12 @@ public class USBBackup {
         @Override
         public void run() {
             if (!(remotePath.toFile().canRead() && localPath.toFile().canRead() && localPath.toFile().canWrite())) {
-                log.info("Cannot read/write files \n Will try again in 5 mins");
+                log.info("Cannot read/write files \n Will try again in 5 minutes");
                 return;
             }
             try {
                 if (remoteName != null && !Files.getFileStore(remotePath).name().equals(remoteName)) {
-                    log.info("The remote name doesnt match our records! \nDelete name from config or update the path");
+                    log.info("The remote name doesn't match our records! \nDelete name from config or update the path");
                     return;
                 }
                 if (remoteName == null) {
