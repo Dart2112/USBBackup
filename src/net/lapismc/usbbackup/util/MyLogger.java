@@ -22,6 +22,10 @@ import java.util.Date;
 public class MyLogger {
 
     public void info(String message) {
+        if (message.equals("\n")) {
+            System.out.println("\n");
+            return;
+        }
         String timeStamp = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(new Date());
         System.out.println(timeStamp + " INFO: " + message);
     }

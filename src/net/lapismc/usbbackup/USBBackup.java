@@ -64,6 +64,7 @@ public class USBBackup {
                 e.printStackTrace();
                 return;
             }
+            log.info("\n");
             log.info("Backup Starting");
             for (File f : remotePath.toFile().listFiles()) {
                 processFile(f);
@@ -71,7 +72,7 @@ public class USBBackup {
             for (File f : localPath.toFile().listFiles()) {
                 processLocalFile(f);
             }
-            log.info("All files started! \n");
+            log.info("All files started!");
         }
     };
 
