@@ -22,13 +22,13 @@ import java.util.Date;
 public class MyLogger {
 
     public void info(String message) {
-        String timeStamp = new SimpleDateFormat("[dd.MM.yyyy.HH.mm.ss]").format(new Date());
-        System.out.println(timeStamp + " Info:" + message);
+        String timeStamp = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(new Date());
+        System.out.println(timeStamp + " INFO: " + message);
     }
 
     public void error(String message) {
-        String timeStamp = new SimpleDateFormat("[dd.MM.yyyy.HH.mm.ss]").format(new Date());
-        System.out.println(timeStamp + " Error:" + message);
+        String timeStamp = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(new Date());
+        System.out.println(timeStamp + " ERROR: " + message);
     }
 
 }
