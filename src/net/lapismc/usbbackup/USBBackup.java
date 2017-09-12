@@ -19,9 +19,8 @@ package net.lapismc.usbbackup;
 import net.lapismc.YamlDNA.file.FileConfiguration;
 import net.lapismc.YamlDNA.file.YamlConfiguration;
 import net.lapismc.usbbackup.util.ChecksumFile;
+import net.lapismc.usbbackup.util.MyLogger;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +38,7 @@ public class USBBackup {
     public String remoteName;
     public Path localPath;
     public List<String> exclude;
-    public Log log = LogFactory.getLog(USBBackup.class);
+    public MyLogger log = new MyLogger();
     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private USBBackup usbBackup;
     private Runnable runnable = new Runnable() {
