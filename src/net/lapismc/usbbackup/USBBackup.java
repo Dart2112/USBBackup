@@ -24,6 +24,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -50,7 +52,26 @@ public class USBBackup {
             }
             try {
                 if (remoteName != null && !Files.getFileStore(remotePath).name().equals(remoteName)) {
-                    log.info("The remote name doesn't match our records! \nDelete name from config or update the path");
+                    String newRemotePath = null;
+                    for (Path p : FileSystems.getDefault().getRootDirectories()) {
+                        try {
+                            FileStore fs = Files.getFileStore(p);
+                            if (fs.name() == remoteName) {
+                                newRemotePath = p.toString();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            log.error("Failed to check for new path");
+                        }
+                    }
+                    if (newRemotePath != null) {
+                        log.info("The drive we are looking for last had a name of "
+                                + remoteName + ", but we think the drive might have moved from "
+                                + Files.getFileStore(remotePath).name() + " to " + newRemotePath);
+                        log.info("Please change the value in the config if this is the case");
+                    } else {
+                        log.info("The remote name doesn't match our records! \nDelete name from config or update the path");
+                    }
                     return;
                 }
                 if (remoteName == null) {
