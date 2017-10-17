@@ -40,8 +40,8 @@ public class USBBackup {
     public String remoteName;
     public Path localPath;
     public List<String> exclude;
-    public MyLogger log = new MyLogger();
-    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    public MyLogger log;
+    public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
     private USBBackup usbBackup;
     private Runnable runnable = new Runnable() {
         @Override
@@ -101,6 +101,7 @@ public class USBBackup {
         config();
         usbBackup = this;
         scheduler.scheduleWithFixedDelay(runnable, 0l, 5l, TimeUnit.MINUTES);
+        log = new MyLogger(this);
     }
 
     private void processFile(File f) {
