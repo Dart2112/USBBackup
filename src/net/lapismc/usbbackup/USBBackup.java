@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Benjamin Martin
+ * Copyright 2018 Benjamin Martin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ public class USBBackup {
     public List<String> exclude;
     public MyLogger log;
     public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+    private Long timeUntilNextRun;
     private USBBackup usbBackup;
     private Runnable runnable = new Runnable() {
         @Override
@@ -100,7 +101,7 @@ public class USBBackup {
     public USBBackup() {
         config();
         usbBackup = this;
-        scheduler.scheduleWithFixedDelay(runnable, 0l, 5l, TimeUnit.MINUTES);
+        scheduler.scheduleWithFixedDelay(runnable, 0l, timeUntilNextRun, TimeUnit.MINUTES);
         log = new MyLogger(this);
     }
 
@@ -175,6 +176,7 @@ public class USBBackup {
             remoteName = null;
             remotePath = new File(config.getString("remotePath")).toPath();
         }
+        timeUntilNextRun = config.getLong("TimeBetweenRuns", 5l);
         localPath = new File(config.getString("localPath")).toPath();
         exclude = config.getStringList("exclude");
     }
