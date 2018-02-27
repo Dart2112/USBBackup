@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Benjamin Martin
+ * Copyright 2018 Benjamin Martin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ public class MyLogger {
     private Runnable task = new Runnable() {
         @Override
         public void run() {
-            while (denominator == 0 || numerator / denominator < 1f) {
+            while (denominator == 0 || numerator < denominator) {
                 System.out.print(numerator + "/" + denominator + " Completed" + "\r");
             }
             System.out.print("Completed                \n");
