@@ -25,14 +25,27 @@ public class MyLogger {
 
     public Integer numerator = 0;
     public Integer denominator = 0;
+    public boolean completed = false;
     private Thread thread;
     private Runnable task = new Runnable() {
         @Override
         public void run() {
-            while (denominator == 0 || numerator < denominator) {
-                System.out.print(numerator + "/" + denominator + " Completed" + "\r");
+            try {
+                while (true) {
+                    if (!completed) {
+                        if (denominator == 0 || numerator < denominator) {
+                            System.out.print(numerator + "/" + denominator + " Completed" + "\r");
+                        } else {
+                            System.out.print("Completed                \n");
+                            completed = true;
+                        }
+                    }
+                    thread.sleep(100l);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                error("Failed to schedule progress printer");
             }
-            System.out.print("Completed                \n");
         }
     };
 

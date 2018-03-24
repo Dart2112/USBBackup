@@ -88,6 +88,7 @@ public class USBBackup {
             }
             log.info("\n");
             log.info("Backup Starting");
+            log.completed = false;
             for (File f : remotePath.toFile().listFiles()) {
                 processFile(f);
             }
@@ -115,6 +116,7 @@ public class USBBackup {
             return;
         }
         if (!f.isDirectory()) {
+            log.denominator++;
             new ChecksumFile(f.getPath().replace(remotePath.toAbsolutePath().toString(), ""), usbBackup);
         } else {
             File dir = new File(localPath.toString() + File.separator + f.getPath().replace(remotePath.toAbsolutePath().toString(), ""));

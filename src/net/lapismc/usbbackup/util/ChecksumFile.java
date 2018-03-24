@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Benjamin Martin
+ * Copyright 2018 Benjamin Martin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ public class ChecksumFile {
     private Thread thread = new Thread(runChecksum());
 
     public ChecksumFile(String relativePath, USBBackup main) {
-        main.log.denominator++;
         this.relativePath = relativePath;
         this.main = main;
         thread.start();
