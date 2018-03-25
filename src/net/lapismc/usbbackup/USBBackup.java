@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,16 +38,17 @@ import java.util.concurrent.TimeUnit;
 public class USBBackup {
 
     public Path remotePath;
-    public String remoteName;
     public Path localPath;
-    public List<String> exclude;
     public MyLogger log;
-    public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+    private String remoteName;
+    private List<String> exclude;
     private Long timeUntilNextRun;
     private USBBackup usbBackup;
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
+
+    public USBBackup() {
+        config();
+        usbBackup = this;
+        Runnable runnable = () -> {
             if (!(remotePath.toFile().canRead() && localPath.toFile().canRead() && localPath.toFile().canWrite())) {
                 log.info("Cannot read/write files \n Will try again in 5 minutes");
                 return;
@@ -57,7 +59,7 @@ public class USBBackup {
                     for (Path p : FileSystems.getDefault().getRootDirectories()) {
                         try {
                             FileStore fs = Files.getFileStore(p);
-                            if (fs.name() == remoteName) {
+                            if (Objects.equals(fs.name(), remoteName)) {
                                 newRemotePath = p.toString();
                             }
                         } catch (IOException e) {
@@ -96,14 +98,10 @@ public class USBBackup {
                 processLocalFile(f);
             }
             log.info("All files started!");
-        }
-    };
-
-    public USBBackup() {
-        config();
-        usbBackup = this;
-        scheduler.scheduleWithFixedDelay(runnable, 0l, timeUntilNextRun, TimeUnit.MINUTES);
-        log = new MyLogger(this);
+        };
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+        scheduler.scheduleWithFixedDelay(runnable, 0L, timeUntilNextRun, TimeUnit.MINUTES);
+        log = new MyLogger();
     }
 
     private void processFile(File f) {
@@ -178,7 +176,7 @@ public class USBBackup {
             remoteName = null;
             remotePath = new File(config.getString("remotePath")).toPath();
         }
-        timeUntilNextRun = config.getLong("TimeBetweenRuns", 5l);
+        timeUntilNextRun = config.getLong("TimeBetweenRuns", 5L);
         localPath = new File(config.getString("localPath")).toPath();
         exclude = config.getStringList("exclude");
     }

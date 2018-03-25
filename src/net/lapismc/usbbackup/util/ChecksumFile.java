@@ -34,30 +34,29 @@ public class ChecksumFile {
     private Long remoteChecksum;
     private Long localChecksum;
     private boolean force = false;
-    private Thread thread = new Thread(runChecksum());
 
     public ChecksumFile(String relativePath, USBBackup main) {
         this.relativePath = relativePath;
         this.main = main;
+        Thread thread = new Thread(runChecksum());
         thread.start();
     }
 
-    public Runnable runChecksum() {
-        return new Runnable() {
-            @Override
-            public void run() {
-                File local = new File(main.localPath.toAbsolutePath() + File.separator + relativePath);
-                if (local.exists()) {
-                    localChecksum = getChecksum(local, Type.Local);
-                } else {
-                    force = true;
-                    main.log.info("Local file not found, forcing copy of " + relativePath);
-                }
-                File remote = new File(main.remotePath.toAbsolutePath() + relativePath);
-                remoteChecksum = getChecksum(remote, Type.Remote);
-                copyFile();
-                main.log.numerator++;
+    private Runnable runChecksum() {
+        return () -> {
+            File local = new File(main.localPath.toAbsolutePath() + File.separator + relativePath);
+            if (local.exists()) {
+                localChecksum = getChecksum(local, Type.Local);
+            } else {
+                force = true;
+                main.log.info("Local file not found, forcing copy of " + relativePath);
             }
+            main.log.completed = false;
+            File remote = new File(main.remotePath.toAbsolutePath() + relativePath);
+            remoteChecksum = getChecksum(remote, Type.Remote);
+            copyFile();
+            main.log.numerator++;
+            main.log.completed = false;
         };
     }
 
@@ -86,7 +85,7 @@ public class ChecksumFile {
 
     private Long getChecksum(File file, Type type) {
         if (!file.exists()) {
-            return 0l;
+            return 0L;
         }
         if (file.length() > 1000000) {
             return file.length();
@@ -94,11 +93,9 @@ public class ChecksumFile {
         try {
             CheckedInputStream cis = null;
             FileInputStream fis = null;
-            long fileSize = 0;
             try {
                 fis = new FileInputStream(file);
                 cis = new CheckedInputStream(fis, new Adler32());
-                fileSize = file.length();
             } catch (FileNotFoundException e) {
                 cis.close();
                 fis.close();

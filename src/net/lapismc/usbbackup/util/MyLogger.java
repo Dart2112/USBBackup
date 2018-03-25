@@ -16,8 +16,6 @@
 
 package net.lapismc.usbbackup.util;
 
-import net.lapismc.usbbackup.USBBackup;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -26,31 +24,27 @@ public class MyLogger {
     public Integer numerator = 0;
     public Integer denominator = 0;
     public boolean completed = false;
-    private Thread thread;
-    private Runnable task = new Runnable() {
-        @Override
-        public void run() {
+
+    public MyLogger() {
+        Runnable task = () -> {
             try {
                 while (true) {
                     if (!completed) {
                         if (denominator == 0 || numerator < denominator) {
                             System.out.print(numerator + "/" + denominator + " Completed" + "\r");
                         } else {
-                            System.out.print("Completed                \n");
+                            System.out.print("Completed                \r");
                             completed = true;
                         }
                     }
-                    thread.sleep(100l);
+                    Thread.sleep(100L);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 error("Failed to schedule progress printer");
             }
-        }
-    };
-
-    public MyLogger(USBBackup main) {
-        thread = new Thread(task);
+        };
+        Thread thread = new Thread(task);
         thread.start();
     }
 
@@ -62,12 +56,14 @@ public class MyLogger {
         String timeStamp = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(new Date());
         System.out.println(timeStamp + " INFO: " + message);
         System.out.print(numerator + "/" + denominator + " Completed" + "\r");
+        completed = false;
     }
 
     public void error(String message) {
         String timeStamp = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]").format(new Date());
         System.out.println(timeStamp + " ERROR: " + message);
         System.out.print(numerator + "/" + denominator + " Completed" + "\r");
+        completed = false;
     }
 
 }
