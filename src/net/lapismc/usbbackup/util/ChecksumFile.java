@@ -31,14 +31,16 @@ public class ChecksumFile {
 
     private String relativePath;
     private USBBackup main;
-    private Long remoteChecksum;
+    public Long remoteChecksum;
     private Long localChecksum;
     private boolean force = false;
+    public boolean done = false;
+    public Thread thread;
 
     public ChecksumFile(String relativePath, USBBackup main) {
         this.relativePath = relativePath;
         this.main = main;
-        Thread thread = new Thread(runChecksum());
+        thread = new Thread(runChecksum());
         thread.start();
     }
 
@@ -56,6 +58,7 @@ public class ChecksumFile {
             remoteChecksum = getChecksum(remote, Type.Remote);
             copyFile();
             main.log.numerator++;
+            done = true;
             main.log.completed = false;
         };
     }

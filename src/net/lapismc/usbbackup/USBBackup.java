@@ -18,7 +18,6 @@ package net.lapismc.usbbackup;
 
 import net.lapismc.YamlDNA.file.FileConfiguration;
 import net.lapismc.YamlDNA.file.YamlConfiguration;
-import net.lapismc.usbbackup.util.ChecksumFile;
 import net.lapismc.usbbackup.util.MyLogger;
 import org.apache.commons.io.FileUtils;
 
@@ -90,6 +89,8 @@ public class USBBackup {
             }
             log.info("\n");
             log.info("Backup Starting");
+            log.denominator = 0;
+            log.numerator = 0;
             log.completed = false;
             for (File f : remotePath.toFile().listFiles()) {
                 processFile(f);
@@ -115,7 +116,7 @@ public class USBBackup {
         }
         if (!f.isDirectory()) {
             log.denominator++;
-            new ChecksumFile(f.getPath().replace(remotePath.toAbsolutePath().toString(), ""), usbBackup);
+            new Monitor(f.getPath().replace(remotePath.toAbsolutePath().toString(), ""), usbBackup);
         } else {
             File dir = new File(localPath.toString() + File.separator + f.getPath().replace(remotePath.toAbsolutePath().toString(), ""));
             if (!dir.exists()) {
