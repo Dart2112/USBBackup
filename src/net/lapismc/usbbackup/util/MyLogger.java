@@ -28,6 +28,7 @@ public class MyLogger {
     public MyLogger() {
         Runnable task = () -> {
             try {
+                //noinspection InfiniteLoopStatement
                 while (true) {
                     if (!completed) {
                         if (denominator == 0 || numerator < denominator) {

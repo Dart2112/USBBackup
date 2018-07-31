@@ -73,7 +73,9 @@ public class ChecksumFile {
         File from = new File(main.remotePath.toAbsolutePath().toString() + File.separator + relativePath);
         try {
             if (!dest.exists()) {
-                dest.createNewFile();
+                if (!dest.createNewFile()) {
+                    main.log.error("Failed to create destination file");
+                }
             }
             if (!from.exists()) {
                 return;
@@ -104,6 +106,7 @@ public class ChecksumFile {
                 fis.close();
             }
             byte[] buf = new byte[128];
+            //noinspection StatementWithEmptyBody
             while (cis.read(buf) >= 0) {
             }
             Long l = cis.getChecksum().getValue();

@@ -82,13 +82,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>myMavenRepo.read</id>
-            <url>${myMavenRepo.read.url}</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>commons-io</groupId>

@@ -30,9 +30,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class USBBackup {
 
@@ -41,7 +38,6 @@ public class USBBackup {
     public MyLogger log;
     private String remoteName;
     private List<String> exclude;
-    private Long timeUntilNextRun;
     private USBBackup usbBackup;
 
     public USBBackup() {
@@ -99,10 +95,22 @@ public class USBBackup {
                 processLocalFile(f);
             }
             log.info("All files started!");
+            while (!log.completed) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ignored) {
+                }
+            }
+            System.out.print("Completed, Press enter to exit");
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                System.in.read();
+            } catch (IOException ignored) {
+            }
+            System.exit(0);
         };
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
-        scheduler.scheduleWithFixedDelay(runnable, 0L, timeUntilNextRun, TimeUnit.MINUTES);
         log = new MyLogger();
+        new Thread(runnable).start();
     }
 
     private void processFile(File f) {
@@ -120,8 +128,8 @@ public class USBBackup {
         } else {
             File dir = new File(localPath.toString() + File.separator + f.getPath().replace(remotePath.toAbsolutePath().toString(), ""));
             if (!dir.exists()) {
-                dir.mkdir();
-                log.info("Made dir " + dir.getAbsolutePath().replace(localPath.toString(), ""));
+                if (dir.mkdir())
+                    log.info("Made dir " + dir.getAbsolutePath().replace(localPath.toString(), ""));
             }
             for (File file : f.listFiles()) {
                 processFile(file);
@@ -152,7 +160,9 @@ public class USBBackup {
         FileConfiguration config;
         if (!configFile.exists()) {
             try {
-                configFile.createNewFile();
+                if (!configFile.createNewFile()) {
+                    log.error("Could not create config file");
+                }
                 config = YamlConfiguration.loadConfiguration(configFile);
                 config.set("remotePath", " ");
                 config.set("localPath", " ");
@@ -177,7 +187,6 @@ public class USBBackup {
             remoteName = null;
             remotePath = new File(config.getString("remotePath")).toPath();
         }
-        timeUntilNextRun = config.getLong("TimeBetweenRuns", 5L);
         localPath = new File(config.getString("localPath")).toPath();
         exclude = config.getStringList("exclude");
     }

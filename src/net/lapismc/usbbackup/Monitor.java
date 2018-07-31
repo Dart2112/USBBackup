@@ -18,49 +18,47 @@ package net.lapismc.usbbackup;
 
 import net.lapismc.usbbackup.util.ChecksumFile;
 
-public class Monitor {
+class Monitor {
 
     private ChecksumFile file;
     private USBBackup main;
     private boolean started = false;
 
-    public Monitor(String relativePath, USBBackup main) {
+    Monitor(String relativePath, USBBackup main) {
         file = new ChecksumFile(relativePath, main);
         this.main = main;
-        Thread thread = new Thread(run());
+        new Thread(run()).start();
     }
 
     private Runnable run() {
-        return new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < 10; i++) {
-                    if (file.done) {
-                        break;
-                    }
-                    if (!file.done && file.remoteChecksum != null) {
-                        if (!started) {
-                            started = true;
-                        } else {
-                            try {
-                                file.thread.interrupt();
-                                main.log.numerator++;
-                            } catch (SecurityException ignored) {
-                            }
-                        }
-                    }
-                    if (i == 10) {
+        return () -> {
+            int secondsToWait = 30;
+            for (int i = 0; i < secondsToWait + 1; i++) {
+                if (file.done) {
+                    break;
+                }
+                if (!file.done && file.remoteChecksum != null) {
+                    if (!started) {
+                        started = true;
+                    } else {
                         try {
                             file.thread.interrupt();
                             main.log.numerator++;
                         } catch (SecurityException ignored) {
                         }
                     }
+                }
+                if (i == secondsToWait) {
                     try {
-                        wait(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        file.thread.interrupt();
+                        main.log.numerator++;
+                    } catch (SecurityException ignored) {
                     }
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         };
