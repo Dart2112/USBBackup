@@ -82,7 +82,7 @@ public class ChecksumFile {
             }
             FileUtils.copyFile(from, dest);
         } catch (IOException e) {
-            main.log.error(e.getMessage());
+            e.printStackTrace();
             main.log.error("Transfer failed, See above error!");
         }
         main.log.info("File copied at " + relativePath);
@@ -114,7 +114,7 @@ public class ChecksumFile {
             fis.close();
             return l;
         } catch (IOException e) {
-            main.log.error(e.getMessage());
+            e.printStackTrace();
             main.log.error("Failed to get checksum for " + relativePath + " " + type);
             return null;
         }
