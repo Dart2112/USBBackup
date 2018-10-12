@@ -18,25 +18,24 @@ package net.lapismc.usbbackup.util;
 
 import net.lapismc.usbbackup.USBBackup;
 import net.lapismc.usbbackup.USBBackup.Type;
+import net.openhft.hashing.LongHashFunction;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.ClosedByInterruptException;
-import java.util.zip.Adler32;
-import java.util.zip.CheckedInputStream;
 
 public class ChecksumFile {
 
+    public boolean done = false;
+    public Thread thread;
     private String relativePath;
     private USBBackup main;
     private Long remoteChecksum;
     private Long localChecksum;
     private boolean force = false;
-    public boolean done = false;
-    public Thread thread;
 
     public ChecksumFile(String relativePath, USBBackup main) {
         this.relativePath = relativePath;
@@ -94,27 +93,11 @@ public class ChecksumFile {
         if (!file.exists()) {
             return 0L;
         }
-        if (file.length() > 1000000) {
+        if (file.length() > 100000000l) {
             return file.length();
         }
         try {
-            CheckedInputStream cis = null;
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(file);
-                cis = new CheckedInputStream(fis, new Adler32());
-            } catch (FileNotFoundException e) {
-                cis.close();
-                fis.close();
-            }
-            byte[] buf = new byte[128];
-            //noinspection StatementWithEmptyBody
-            while (cis.read(buf) >= 0) {
-            }
-            Long l = cis.getChecksum().getValue();
-            cis.close();
-            fis.close();
-            return l;
+            return LongHashFunction.xx().hashBytes(IOUtils.toByteArray(new FileInputStream(file)));
         } catch (IOException e) {
             e.printStackTrace();
             main.log.error("Failed to get checksum for " + relativePath + " " + type);
