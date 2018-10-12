@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.channels.ClosedByInterruptException;
 import java.util.zip.Adler32;
 import java.util.zip.CheckedInputStream;
 
@@ -31,7 +32,7 @@ public class ChecksumFile {
 
     private String relativePath;
     private USBBackup main;
-    public Long remoteChecksum;
+    private Long remoteChecksum;
     private Long localChecksum;
     private boolean force = false;
     public boolean done = false;
@@ -81,6 +82,7 @@ public class ChecksumFile {
                 return;
             }
             FileUtils.copyFile(from, dest);
+        } catch (ClosedByInterruptException ignored) {
         } catch (IOException e) {
             e.printStackTrace();
             main.log.error("Transfer failed, See above error!");

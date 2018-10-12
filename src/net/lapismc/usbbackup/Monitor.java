@@ -37,17 +37,6 @@ class Monitor {
                 if (file.done) {
                     break;
                 }
-                if (!file.done && file.remoteChecksum != null) {
-                    if (!started) {
-                        started = true;
-                    } else {
-                        try {
-                            file.thread.interrupt();
-                            main.log.numerator++;
-                        } catch (SecurityException ignored) {
-                        }
-                    }
-                }
                 if (i == secondsToWait) {
                     try {
                         file.thread.interrupt();
