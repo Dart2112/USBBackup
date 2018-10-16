@@ -46,9 +46,8 @@ public class USBBackup {
         Runnable runnable = () -> {
             if (!(remotePath.toFile().canRead() && localPath.toFile().canRead() && localPath.toFile().canWrite())) {
                 log.info("Cannot read/write files \n Close this instance and try again");
-                log.numerator = 100;
-                log.denominator = 100;
                 log.completed = true;
+                waitForExit();
                 return;
             }
             try {
@@ -73,9 +72,8 @@ public class USBBackup {
                     } else {
                         log.info("The remote name doesn't match our records! \nDelete name from config or update the path");
                     }
-                    log.numerator = 100;
-                    log.denominator = 100;
                     log.completed = true;
+                    waitForExit();
                     return;
                 }
                 if (remoteName == null) {
@@ -107,16 +105,20 @@ public class USBBackup {
                 } catch (InterruptedException ignored) {
                 }
             }
-            System.out.print("Completed, Press enter to exit");
-            try {
-                //noinspection ResultOfMethodCallIgnored
-                System.in.read();
-            } catch (IOException ignored) {
-            }
-            System.exit(0);
+            waitForExit();
         };
         log = new MyLogger();
         new Thread(runnable).start();
+    }
+
+    private void waitForExit() {
+        System.out.print("Completed, Press enter to exit");
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            System.in.read();
+        } catch (IOException ignored) {
+        }
+        System.exit(0);
     }
 
     private void processFile(File f) {
