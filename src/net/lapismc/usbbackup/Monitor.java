@@ -22,7 +22,6 @@ class Monitor {
 
     private ChecksumFile file;
     private USBBackup main;
-    private boolean started = false;
 
     Monitor(String relativePath, USBBackup main) {
         file = new ChecksumFile(relativePath, main);
