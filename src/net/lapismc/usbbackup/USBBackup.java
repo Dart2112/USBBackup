@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Benjamin Martin
+ * Copyright 2019 Benjamin Martin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -113,6 +113,13 @@ public class USBBackup {
 
     private void waitForExit() {
         System.out.print("Completed, Press enter to exit");
+        new Thread(() -> {
+            try {
+                Thread.sleep(10 * 1000);
+            } catch (InterruptedException ignored) {
+            }
+            System.exit(0);
+        }).start();
         try {
             //noinspection ResultOfMethodCallIgnored
             System.in.read();
