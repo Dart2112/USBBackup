@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Benjamin Martin
+ * Copyright 2019 Benjamin Martin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public class ChecksumFile {
         if (!file.exists()) {
             return 0L;
         }
-        if (file.length() > 100000000l) {
+        if (file.length() > 500000000l) {
             return file.length();
         }
         try {
