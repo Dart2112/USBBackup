@@ -41,6 +41,7 @@ public class USBBackup {
     private USBBackup usbBackup;
 
     public USBBackup() {
+        log = new MyLogger();
         config();
         usbBackup = this;
         Runnable runnable = () -> {
@@ -107,12 +108,11 @@ public class USBBackup {
             }
             waitForExit();
         };
-        log = new MyLogger();
         new Thread(runnable).start();
     }
 
     private void waitForExit() {
-        System.out.print("Completed, Press enter to exit");
+        System.out.print("Completed, Press enter to exit\n");
         new Thread(() -> {
             try {
                 Thread.sleep(10 * 1000);

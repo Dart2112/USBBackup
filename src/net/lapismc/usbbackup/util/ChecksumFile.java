@@ -93,7 +93,7 @@ public class ChecksumFile {
         if (!file.exists()) {
             return 0L;
         }
-        if (file.length() > 500000000l) {
+        if (file.length() > 500000000L) {
             return file.length();
         }
         try {
