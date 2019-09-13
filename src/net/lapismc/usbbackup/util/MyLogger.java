@@ -23,6 +23,7 @@ public class MyLogger {
 
     public Integer numerator = 0;
     public Integer denominator = 0;
+    public boolean allFilesStarted = false;
     public boolean completed = false;
 
     public MyLogger() {
@@ -33,7 +34,7 @@ public class MyLogger {
                     if (!completed) {
                         if (denominator == 0 || numerator < denominator) {
                             System.out.print(numerator + "/" + denominator + " Completed" + "\r");
-                        } else {
+                        } else if (allFilesStarted) {
                             System.out.print("Completed                \r");
                             completed = true;
                         }

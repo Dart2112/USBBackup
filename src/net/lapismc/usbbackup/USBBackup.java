@@ -99,6 +99,7 @@ public class USBBackup {
             for (File f : localPath.toFile().listFiles()) {
                 processLocalFile(f);
             }
+            log.allFilesStarted = true;
             log.info("All files started!");
             while (!log.completed) {
                 try {
