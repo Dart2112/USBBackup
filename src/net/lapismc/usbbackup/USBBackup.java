@@ -185,6 +185,7 @@ public class USBBackup {
                 exclude = new ArrayList<>();
                 exclude.add("~");
                 exclude.add("Thumbs.db");
+                exclude.add("System Volume Information");
                 config.set("exclude", exclude);
                 config.save(configFile);
             } catch (IOException e) {
