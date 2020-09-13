@@ -1,0 +1,3 @@
+Detect file changes (Modifications, Create, Delete, maybe try to detect renames) using hashes
+copy the changed file to the backup location
+save the old file to a revisions folder such that we can keep X # of versions with a date stamp
